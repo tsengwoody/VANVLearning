@@ -1,0 +1,10 @@
+﻿{% extends "base.html" %}
+{% block nav %}
+<nav>
+	<ul>
+		<li><a href="{% url 'MaterialADocument:material_create' %}">製作獨立素材</a></li>
+		<li><a href="{% url 'MaterialADocument:material_creategroup' %}">製作群組素材</a></li>
+		<li><a>製作文件</a></li>
+	</ul>
+</nav>
+{% endblock %}

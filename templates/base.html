@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{% block title %}{% endblock %} | 數理學習平台</title>
+</head>
+<body>
+	{% block nav %}{% endblock %}
+	<div role="main">{% block content %}{% endblock %}</div>
+	{% block footer %}
+	<footer class="footer">
+		<div class="container" itemscope="" itemtype="http://schema.org/Organization">
+			<div class="pull-left">
+				<ul class="list-inline">
+					<li itemprop="url"><a href="">關於</a></li>
+				</ul>
+			</div>
+			<div class="pull-right">		
+				<p itemprop="owns">© VANVLearning 2017</p>
+			</div>
+		</div>
+	</footer>
+	{% endblock %}
+</body>
+</html>

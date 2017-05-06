@@ -17,13 +17,13 @@ class Subject(models.Model):
 		return self.name
 
 class Topic(models.Model):
+	subject = models.ForeignKey(Subject)
 	name = models.CharField(max_length=20)
 
 	def __unicode__(self):
 		return self.name
 
 class Material(models.Model):
-	subject = models.ForeignKey(Subject)
 	topic = models.ForeignKey(Topic)
 	title = models.TextField(blank=True, null=True) #值為空表示為群組題，例如：克漏字
 	privacy = models.IntegerField()
@@ -42,14 +42,14 @@ class Material(models.Model):
 class Text(Material):
 	title = models.CharField(max_length=100)
 	content = models.TextField()
-	from_material = models.ForeignKey('Text')
+	from_material = models.ForeignKey('Text', blank=True, null=True)
 
 class TrueFalse(Material):
 	answer = models.BooleanField()
-	from_material = models.ForeignKey('TrueFalse')
+	from_material = models.ForeignKey('TrueFalse', blank=True, null=True)
 
 class Choice(Material):
-	from_material = models.ForeignKey('Choice')
+	from_material = models.ForeignKey('Choice', blank=True, null=True)
 
 class Option(models.Model):
 	choice = models.ForeignKey(Choice)
@@ -61,13 +61,12 @@ class Option(models.Model):
 
 class Description(Material):
 	answer = models.TextField()
-	from_material = models.ForeignKey('Description')
+	from_material = models.ForeignKey('Description', blank=True, null=True)
 
 class MaterialGroup(Material):
 	title = models.CharField(max_length=100)
 	content = models.TextField()
 	from_material = models.ForeignKey('MaterialGroup')
-	material_count = models.IntegerField()
 
 class MaterialGroupDetail(models.Model):
 	material_group = models.ForeignKey(MaterialGroup)
@@ -81,6 +80,11 @@ class MaterialGroupDetail(models.Model):
 
 class ContentPiece(models.Model):
 	content = models.TextField()
+
+class Image(models.Model):
+	short_description = models.CharField(max_length=100)
+	long_description = models.TextField(blank=True, null=True)
+	image = models.FileField(upload_to='image/')
 
 class Document(models.Model):
 	type = models.IntegerField()
@@ -132,4 +136,3 @@ class Answer(models.Model):
 	answer_content = models.TextField()
 	create_time = models.DateTimeField(default = timezone.now)
 	create_user = models.ForeignKey(User)
-	update_time = models.DateTimeField(blank=True, null=True)

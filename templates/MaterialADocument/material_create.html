@@ -1,0 +1,26 @@
+﻿{% extends "base_nav.html" %}
+{% block title %}
+製作獨立素材
+{% endblock %}
+
+{% block content %}
+<form>
+	<table>
+	{{ selectForm.as_table }}
+	{{ textForm.as_table }}
+	</table>
+	<table>
+	{{ selectForm.as_table }}
+	{{ tfForm.as_table }}
+	</table>
+	<table>
+	{{ selectForm.as_table }}
+	{{ choiceForm.as_table }}
+	{{ optionForm.as_table }}
+	</table>
+	<table>
+	{{ selectForm.as_table }}
+	{{ descriptionForm.as_table }}
+	</table>
+</form>
+{% endblock %}
