@@ -1,26 +1,136 @@
 ﻿{% extends "base_nav.html" %}
+{% load staticfiles %}
 {% block title %}
-製作獨立素材
+	製作獨立素材
+{% endblock %}
+
+{% block style%}
+	<script language="javascript" src="{% static 'js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
+	<script src="http://www.wiris.net/demo/editor/editor"></script>
+	<script src={% static "js/material_create.js"%}></script> 
+	<script src={% static "js/editor.js"%}></script> 
 {% endblock %}
 
 {% block content %}
-<form>
-	<table>
-	{{ selectForm.as_table }}
-	{{ textForm.as_table }}
-	</table>
-	<table>
-	{{ selectForm.as_table }}
-	{{ tfForm.as_table }}
-	</table>
-	<table>
-	{{ selectForm.as_table }}
-	{{ choiceForm.as_table }}
-	{{ optionForm.as_table }}
-	</table>
-	<table>
-	{{ selectForm.as_table }}
-	{{ descriptionForm.as_table }}
-	</table>
-</form>
+		<form class="form-horizontal">
+			<div class="form-group">
+	    		<label for="selectSubject" class="col-sm-2 control-label">科目</label>
+		    	<div class="col-sm-4">
+					<select class="form-control" id="selectSubject">
+						<option>Math</option>
+						<option>Math2</option>
+						<option>Math3</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="selectTopic" class="col-sm-2 control-label">主題</label>
+				<div class="col-sm-4">
+					<select class="form-control" id='selectTopic'>
+						<option>代數</option>
+						<option>三角函數</option>
+						<option>四則運算</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="radioPrivicy" class="col-sm-2 control-label">權限設定</label>
+				<div class="col-sm-4">
+					<label class="radio-inline">
+						<input type="radio" name="radioPrivicy" id="radioPrivicy1" value="0" checked> 私人
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="radioPrivicy" id="radioPrivicy2" value="1"> 特殊
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="radioPrivicy" id="radioPrivicy3" value="2"> 公開
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="radioType" class="col-sm-2 control-label">種類</label>
+				<div class="col-sm-4">
+					<label class="radio-inline">
+						<input type="radio" name="radioType" id="radioType1" value="0" checked> Text
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="radioType" id="radioType2" value="1"> 是非
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="radioType" id="radioType3" value="2"> 選擇
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="radioType" id="radioType4" value="3"> 問答
+					</label>
+				</div>
+			</div>
+			<div id="titleForm" class="form-group">
+				<label for="textTitle" class="col-sm-2 control-label">標題</label>
+				<div class="col-sm-4">
+					<input class="form-control" type="text">
+				</div>
+			</div>
+			<div id="contentForm" class="form-group">
+				<label for="textTitle" class="col-sm-2 control-label">內容</label>
+				<div class="col-sm-4">
+					<input class="form-control" type="text">
+				</div>
+			</div>
+			<div id="trueFalseForm" class="form-group hidden">
+				<label for="textTitle" class="col-sm-2 control-label">是否為答案</label>
+				<div class="col-sm-4">
+					<label class="radio-inline">
+						<input type="radio" name="radioTrueFalse" id="radioTF1" value="0"> 是
+					</label>
+					<label class="radio-inline">
+						<input type="radio" name="radioTrueFalse" id="radioTF2" value="1"> 否
+					</label>
+				</div>
+			</div>
+		</form>
+
+
+<div class="col-sm-offset-2 col-sm-6">
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editorModal">
+  Editor
+</button>
+</div>
+
+<div id="editorModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+	        <div class="modal-header">
+			    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Modal title</h4>
+			</div>
+			<div class="modal-body">
+
+				<div>
+					<ul class="nav nav-tabs" role="tablist">
+		   				<li role="presentation" class="active"><a href="#normalEditorTab" aria-controls="normal" role="tab" data-toggle="tab">normal</a></li>
+						<li role="presentation"><a href="#mathEditorTab" aria-controls="math" role="tab" data-toggle="tab">math</a></li>
+					</ul>
+					<div class="tab-content">
+		    			<div role="tabpanel" class="tab-pane active" id="normalEditorTab">
+							<textarea id="normalEditor"></textarea>
+						</div>
+						<div role="tabpanel" class="tab-pane" id="mathEditorTab">
+							<div id="mathEditor"></div>
+						</div>
+					</div>
+				</div>
+				<button class="btn btn-primary" id="button_to_panel">Preview</button>
+				<div class="panel panel-default">
+					<div class="panel-heading">預覽</div>
+				    <div class="panel-body" id="previewPanel"></div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save changes</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 {% endblock %}

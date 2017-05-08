@@ -1,10 +1,23 @@
 ﻿{% extends "base.html" %}
 {% block nav %}
-<nav>
-	<ul>
-		<li><a href="{% url 'MaterialADocument:material_create' %}">製作獨立素材</a></li>
-		<li><a href="{% url 'MaterialADocument:material_creategroup' %}">製作群組素材</a></li>
-		<li><a>製作文件</a></li>
-	</ul>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="navbar-header">
+		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+			<span class="sr-only">功能選單</span>
+		 	<span class="icon-bar"></span>
+		  	<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</button>
+		<a class="navbar-brand" href="/">VANVLearing</a>
+	</div>
+	<div calss="container">
+		<div id="navbar" class="collapse navbar-collapse">		
+			<ul class="nav navbar-nav">
+				<li><a href="{% url 'MaterialADocument:material_create' %}">製作獨立素材</a></li>
+				<li><a href="{% url 'MaterialADocument:material_creategroup' %}">製作群組素材</a></li>
+				<li><a>製作文件</a></li>
+			</ul>
+		</div>
+	</div>
 </nav>
 {% endblock %}
