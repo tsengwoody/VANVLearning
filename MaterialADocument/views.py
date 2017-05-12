@@ -19,8 +19,11 @@ def material_creategroup(request, template_name='MaterialADocument/material_crea
 	return render(request, template_name, locals())
 
 def get_form_info(request, template_name='MaterialADocument/get_form_info.html', *args, **kwargs):
-	if kwargs['type'] == 'TrueFalseForm':
-		form = TrueFalseForm()
+	if kwargs['type'] in ['TextForm', 'TrueFalseForm', 'ChoiceForm', 'DescriptionForm', ]:
+		exec("form = {}()".format(kwargs['type']))
+	else:
+		from django.http import HttpResponseServerError
+		return HttpResponseServerError(u'Server Error: 指定的Form類型不存在')
 	from collections import defaultdict
 	field_info = defaultdict(dict)
 	for id, field in enumerate(form):
