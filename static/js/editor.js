@@ -42,14 +42,14 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(1);
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -70,14 +70,16 @@
 	window.onload = function () {
 		var mathEditor = new _mathEditor2.default();
 		var normalEditor = new _normalEditor2.default();
-		var previewPanel = new _previewPanel2.default(normalEditor, mathEditor);
+		var previewPanel = new _previewPanel2.default(normalEditor, 'mathEditor');
 
 		document.getElementById('button_to_panel').addEventListener("click", previewPanel.setContent);
+		document.getElementById('button_up').addEventListener("click", previewPanel.moveUp);
+		document.getElementById('button_down').addEventListener("click", previewPanel.moveDown);
 	};
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -114,9 +116,9 @@
 
 	exports.default = MathEditor;
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -154,9 +156,9 @@
 
 	exports.default = NormalEditor;
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
@@ -190,6 +192,7 @@
 				}
 			}
 
+			newEle.id = _this.container.childElementCount + 1;
 			newEle.className = type;
 			newEle.innerHTML = html;
 			newEle.addEventListener("click", type == 'normal' ? _this.handleContentToEditor(_this.normalEditor) : _this.handleContentToEditor(_this.mathEditor));
@@ -221,6 +224,54 @@
 			};
 		};
 
+		this.moveUp = function (e) {
+			e.stopPropagation();
+			var position = _this.selectedEle.id;
+			if (position == 1) {
+				console.log('This element is already at 1st position');
+				return;
+			}
+			var previousEle = $('#previewPanel #' + String(Number(position) - Number(1)))[0];
+
+			_this.switchEle(previousEle, _this.selectedEle, 'up');
+		};
+
+		this.moveDown = function (e) {
+			e.stopPropagation();
+			var position = _this.selectedEle.id;
+			if (position == _this.container.childElementCount) {
+				console.log('This element is already at last position');
+				return;
+			}
+
+			var nextEle = $('#previewPanel #' + String(Number(position) + Number(1)))[0];
+
+			_this.switchEle(_this.selectedEle, nextEle, 'down');
+		};
+
+		this.switchEle = function (pre, next, direction) {
+			var temp = pre.innerHTML;
+			pre.innerHTML = next.innerHTML;
+			next.innerHTML = temp;
+			if (direction == 'up') {
+				_this.removeSelected(next);
+				_this.addSelected(pre);
+			} else if (direction == 'down') {
+				_this.removeSelected(pre);
+				_this.addSelected(next);
+			}
+		};
+
+		this.removeSelected = function (ele) {
+			ele.className = ele.className.split(' ')[0];
+			_this.selectedEle = "";
+		};
+
+		this.addSelected = function (ele) {
+			ele.className += ' selectedEle';
+			_this.selectedEle = ele;
+		};
+
 		this.container = document.getElementById('previewPanel');
 		this.normalEditor = normalEditor;
 		this.mathEditor = mathEditor;
@@ -229,5 +280,5 @@
 
 	exports.default = PreviewPanel;
 
-/***/ }
+/***/ })
 /******/ ]);

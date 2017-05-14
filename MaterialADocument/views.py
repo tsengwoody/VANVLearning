@@ -41,6 +41,7 @@ def get_form_info(request, template_name='MaterialADocument/get_form_info.html',
 	import json
 	s = json.dumps(response)
 	if request.is_ajax():
+		from django.http import HttpResponse
 		return HttpResponse(json.dumps(response), content_type="application/json")
 	else:
 		return render(request, template_name, locals())
