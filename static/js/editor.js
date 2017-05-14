@@ -70,7 +70,7 @@
 	window.onload = function () {
 		var mathEditor = new _mathEditor2.default();
 		var normalEditor = new _normalEditor2.default();
-		var previewPanel = new _previewPanel2.default(normalEditor, 'mathEditor');
+		var previewPanel = new _previewPanel2.default(normalEditor, mathEditor);
 
 		document.getElementById('button_to_panel').addEventListener("click", previewPanel.setContent);
 		document.getElementById('button_up').addEventListener("click", previewPanel.moveUp);
