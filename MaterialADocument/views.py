@@ -37,6 +37,9 @@ def get_form_info(request, template_name='MaterialADocument/get_form_info.html',
 			field_info[id]['choices'] = field.field.widget.choices
 		except:
 			pass
+	field_info['SubjectToTopic'] = {}
+	for subject in Subject.objects.all():
+		field_info['SubjectToTopic'][subject.name] = [topic.name for topic in subject.topic_set.all()]
 	response = field_info
 	import json
 	s = json.dumps(response)
