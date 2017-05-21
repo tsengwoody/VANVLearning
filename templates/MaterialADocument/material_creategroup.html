@@ -1,9 +1,11 @@
 ﻿{% extends "base_nav.html" %}
+{% load staticfiles %}
 {% block title %}
 製作群組素材
 {% endblock %}
 
 {% block content %}
-<form>
-</form>
+<div id="form">
+</div>
+<script src={% static "js/bundle/form.js" %} type="text/javascript"></script>
 {% endblock %}
