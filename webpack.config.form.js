@@ -1,10 +1,10 @@
 module.exports = {
 	entry: [
-		'./static/js/editor/index.js',
+		'./static/js/form/index.js',
 	],
 	output: {
-		path: `${__dirname}/static/js/bundle/`,
-		filename: 'editor.js',
+		path: `${__dirname}/static/js/bundle`,
+		filename: 'form.js',
 	},
 	module: {
 		loaders: [
