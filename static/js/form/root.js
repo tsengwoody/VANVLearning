@@ -23,7 +23,7 @@ class Root extends React.Component {
 
 	handleFetchFormData = (v) => {
 		$.ajax({
-			url: 'http://localhost:8000/MaterialADocument/get_form_info/' + v,
+			url: '/MaterialADocument/get_form_info/' + v,
 		})
 		.done(function(data) {
 			this.setState({
