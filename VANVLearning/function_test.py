@@ -66,7 +66,8 @@ class NewMaterialContentTest(unittest.TestCase):
         radioType = self.browser.find_element_by_xpath('//*[@id="createMaterial"]/div[4]/div/label[4]').text
         self.assertEquals(u'問答', radioType)
         radioTypeInput = self.browser.find_element_by_id('radioType2')
-        radioTypeInput.click()
+        self.browser.execute_script("arguments[0].click();", radioTypeInput)
+		#        radioTypeInput.click()
 
         # 根據所選種類產生新的欄位
         # self.browser.implicitly_wait(3)

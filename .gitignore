@@ -5,3 +5,4 @@ temp
 db.sqlite3
 node_modules
 static/js/bundle
+geckodriver.log

@@ -10,6 +10,31 @@ PRIVACY_OPTION = (
 	(2, u'公開'),
 )
 
+class MaterialForm(forms.ModelForm):
+
+	def clean(self):
+		cleaned_data = super(MaterialForm, self).clean()
+		subject_id = cleaned_data.get("subject")
+		topic_id = cleaned_data.get("topic")
+		if subject_id and topic_id:
+			SubjectToTopic = {}
+			for subject in Subject.objects.all():
+				SubjectToTopic[subject.id] = [topic.id for topic in subject.topic_set.all()]
+			if topic_id not in SubjectToTopic[subject_id]:
+				raise forms.ValidationError(
+					"subject to topic not map",
+					code="invalid",
+				)
+
+	def save(self, *args, **kwargs):
+		commit = kwargs['commit']
+		kwargs['commit'] = False
+		instance = super(MaterialForm, self).save(*args, **kwargs)
+		instance.topic = Topic.objects.get(id=self.cleaned_data['topic'])
+		if commit:
+			instance.save()
+		return instance
+
 class SelectForm(forms.Form):
 	type = forms.IntegerField(
 		widget=forms.RadioSelect(
@@ -77,7 +102,7 @@ class TextForm(forms.ModelForm):
 		new_order = ['subject', 'topic', 'privacy', 'title', 'content',]
 		self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
 
-class TrueFalseForm(forms.ModelForm):
+class TrueFalseForm(MaterialForm):
 	topic = forms.IntegerField(
 		widget=forms.Select(
 			choices = EMPTY_OPTION
