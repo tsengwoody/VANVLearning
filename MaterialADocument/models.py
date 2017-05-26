@@ -37,7 +37,7 @@ class Material(models.Model):
 		abstract = True
 
 	def __unicode__(self):
-		return self.subject.name +str(self.id)
+		return self.topic.name +str(self.id)
 
 class Text(Material):
 	title = models.CharField(max_length=100)

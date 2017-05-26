@@ -1,5 +1,6 @@
 ﻿# coding: utf-8
 from django import forms
+from django.forms import formset_factory
 from .models import *
 
 EMPTY_OPTION = (('', u'---------'),)
@@ -10,10 +11,28 @@ PRIVACY_OPTION = (
 	(2, u'公開'),
 )
 
-class MaterialForm(forms.ModelForm):
+class MaterialBaseForm(forms.ModelForm):
+	topic = forms.IntegerField(
+		widget=forms.Select(
+			choices = EMPTY_OPTION
+		),
+		label = u'主題',
+	)
+
+	def __init__(self, *args, **kwargs):
+		kwargs.setdefault('label_suffix', '')
+		super(MaterialBaseForm, self).__init__(*args, **kwargs)
+		choices = [('', u'---------')]
+		choices = list(EMPTY_OPTION) + [(subject.id, subject.name) for subject in Subject.objects.all()]
+		self.fields['subject'] = forms.IntegerField(
+			widget=forms.Select(
+				choices=choices
+			),
+			label=u'科目',
+		)
 
 	def clean(self):
-		cleaned_data = super(MaterialForm, self).clean()
+		cleaned_data = super(MaterialBaseForm, self).clean()
 		subject_id = cleaned_data.get("subject")
 		topic_id = cleaned_data.get("topic")
 		if subject_id and topic_id:
@@ -29,7 +48,7 @@ class MaterialForm(forms.ModelForm):
 	def save(self, *args, **kwargs):
 		commit = kwargs['commit']
 		kwargs['commit'] = False
-		instance = super(MaterialForm, self).save(*args, **kwargs)
+		instance = super(MaterialBaseForm, self).save(*args, **kwargs)
 		instance.topic = Topic.objects.get(id=self.cleaned_data['topic'])
 		if commit:
 			instance.save()
@@ -48,19 +67,7 @@ class SelectForm(forms.Form):
 		label=u'類型',
 	)
 
-	class Media:
-		css = {
-		}
-		js = ('/static/SelectForm.js',)
-
-class TextForm(forms.ModelForm):
-	topic = forms.IntegerField(
-		widget=forms.Select(
-			choices = EMPTY_OPTION
-		),
-		label = u'主題',
-	)
-
+class TextForm(MaterialBaseForm):
 	class Meta:
 		model = Text
 		fields = ['title', 'privacy', 'content']
@@ -83,33 +90,13 @@ class TextForm(forms.ModelForm):
 		}
 		help_texts = {
 		}
-	class Media:
-		css = {
-		}
-		js = ('/static/TextForm.js',)
 
 	def __init__(self, *args, **kwargs):
-		kwargs.setdefault('label_suffix', '')
 		super(TextForm, self).__init__(*args, **kwargs)
-		choices = [('', u'---------')]
-		choices = list(EMPTY_OPTION) + [(subject.id, subject.name) for subject in Subject.objects.all()]
-		self.fields['subject'] = forms.IntegerField(
-			widget=forms.Select(
-				choices=choices
-			),
-			label=u'科目',
-		)
 		new_order = ['subject', 'topic', 'privacy', 'title', 'content',]
 		self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
 
-class TrueFalseForm(MaterialForm):
-	topic = forms.IntegerField(
-		widget=forms.Select(
-			choices = EMPTY_OPTION
-		),
-		label = u'主題',
-	)
-
+class TrueFalseForm(MaterialBaseForm):
 	class Meta:
 		model = TrueFalse
 		fields = ['title', 'privacy', 'answer']
@@ -133,33 +120,13 @@ class TrueFalseForm(MaterialForm):
 		}
 		help_texts = {
 		}
-	class Media:
-		css = {
-		}
-		js = ('/static/TrueFalseForm.js',)
 
 	def __init__(self, *args, **kwargs):
-		kwargs.setdefault('label_suffix', '')
 		super(TrueFalseForm, self).__init__(*args, **kwargs)
-		choices = [('', u'---------')]
-		choices = list(EMPTY_OPTION) + [(subject.id, subject.name) for subject in Subject.objects.all()]
-		self.fields['subject'] = forms.IntegerField(
-			widget=forms.Select(
-				choices=choices
-			),
-			label=u'科目',
-		)
 		new_order = ['subject', 'topic', 'privacy', 'title', 'answer',]
 		self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
 
-class ChoiceForm(forms.ModelForm):
-	topic = forms.IntegerField(
-		widget=forms.Select(
-			choices = EMPTY_OPTION
-		),
-		label = u'主題',
-	)
-
+class ChoiceForm(MaterialBaseForm):
 	class Meta:
 		model = Choice
 		fields = ['title', 'privacy',]
@@ -178,21 +145,9 @@ class ChoiceForm(forms.ModelForm):
 		}
 		help_texts = {
 		}
-	class Media:
-		css = {
-		}
-		js = ('/static/ChoiceForm.js',)
 
 	def __init__(self, *args, **kwargs):
-		kwargs.setdefault('label_suffix', '')
 		super(ChoiceForm, self).__init__(*args, **kwargs)
-		choices = list(EMPTY_OPTION) + [(subject.id, subject.name) for subject in Subject.objects.all()]
-		self.fields['subject'] = forms.IntegerField(
-			widget=forms.Select(
-				choices=choices
-			),
-			label=u'科目',
-		)
 		new_order = ['subject', 'topic', 'privacy', 'title',]
 		self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
 
@@ -214,14 +169,17 @@ class OptionForm(forms.ModelForm):
 			'is_answer': u'解答',
 		}
 
-class DescriptionForm(forms.ModelForm):
-	topic = forms.IntegerField(
-		widget=forms.Select(
-			choices = EMPTY_OPTION
-		),
-		label = u'主題',
-	)
+	def save(self, *args, **kwargs):
+		commit = kwargs['commit']
+		kwargs['commit'] = False
+		choice = kwargs.pop('choice', None)
+		instance = super(OptionForm, self).save(*args, **kwargs)
+		instance.choice = choice
+		if commit:
+			instance.save()
+		return instance
 
+class DescriptionForm(MaterialBaseForm):
 	class Meta:
 		model = Description
 		fields = ['title', 'privacy', 'answer']
@@ -244,21 +202,32 @@ class DescriptionForm(forms.ModelForm):
 		}
 		help_texts = {
 		}
-	class Media:
-		css = {
-		}
-		js = ('/static/DescriptionForm.js',)
 
 	def __init__(self, *args, **kwargs):
-		kwargs.setdefault('label_suffix', '')
 		super(DescriptionForm, self).__init__(*args, **kwargs)
-		choices = [('', u'---------')]
-		choices = list(EMPTY_OPTION) + [(subject.id, subject.name) for subject in Subject.objects.all()]
-		self.fields['subject'] = forms.IntegerField(
-			widget=forms.Select(
-				choices=choices
-			),
-			label=u'科目',
-		)
 		new_order = ['subject', 'topic', 'privacy', 'title', 'answer',]
 		self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
+
+class MaterialForm(object):
+	def __init__(self):
+		self.material = []
+
+	def fill(self, data, origin_material, user,):
+		if data['type'] in ['Text', 'TrueFalse', 'Choice', 'Description', ]:
+			exec("form = {}Form(data)".format(data['type']))
+		else:
+			raise TypeError('type not valid')
+		if not form.is_valid():
+			raise ValueError('data not valid')
+		material = form.save(commit=False)
+		material.origin_material = origin_material
+		material.create_user = user
+		material.save()
+		self.material.append(material)
+		if data['type'] == 'Choice':
+			OptionFormSet = formset_factory(OptionForm)
+			formSet = OptionFormSet(data)
+			if not formSet.is_valid():
+				raise ValueError('data not valid')
+			self.material = self.material + [form.save(choice=material, commit=True) for form in formSet]
+			return self.material

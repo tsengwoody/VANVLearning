@@ -24,6 +24,22 @@ class material_createViewTests(TestCase):
 		Topic.objects.create(subject=s, name=u'指數')
 		Topic.objects.create(subject=s2, name=u'微積分')
 
+	def test_correct_Text_case(self):
+		previous_count = len(Text.objects.all())
+		response = self.client.post(
+			reverse(
+			'MaterialADocument:material_create'),
+			{
+				'type': 'Text',
+				'subject': '4',
+				'topic': '4',
+				'privacy': '2',
+				'title': '二元一次方程式解',
+				'content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
+			},
+		)
+		self.assertEqual(len(Text.objects.all()), previous_count + 1)
+
 	def test_correct_TrueFalse_case(self):
 		previous_count = len(TrueFalse.objects.all())
 		response = self.client.post(
@@ -39,8 +55,46 @@ class material_createViewTests(TestCase):
 			},
 		)
 		self.assertEqual(len(TrueFalse.objects.all()), previous_count + 1)
-		trueFalse = TrueFalse.objects.first()
-		
+
+	def test_correct_Choice_case(self):
+		previous_count = len(Choice.objects.all())
+		previous_option_count = len(Option.objects.all())
+		response = self.client.post(
+			reverse(
+			'MaterialADocument:material_create'),
+			{
+				'type': 'Choice',
+				'subject': '4',
+				'topic': '4',
+				'privacy': '2',
+				'title': '二元一次方程式解',
+				'form-TOTAL_FORMS': '2',
+				'form-INITIAL_FORMS': '0',
+				'form-MAX_NUM_FORMS': '10',
+				'form-0-content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
+				'form-0-is_answer': 'True',
+				'form-1-content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>b</mi></mrow></mfrac></mrow></math>',
+				'form-1-is_answer': 'False',
+			},
+		)
+		self.assertEqual(len(Choice.objects.all()), previous_count + 1)
+		self.assertEqual(len(Option.objects.all()), previous_option_count + 2)
+
+	def test_correct_Description_case(self):
+		previous_count = len(TrueFalse.objects.all())
+		response = self.client.post(
+			reverse(
+			'MaterialADocument:material_create'),
+			{
+				'type': 'Description',
+				'subject': '3',
+				'topic': '2',
+				'privacy': '2',
+				'title': '二元一次方程式解',
+				'answer': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
+			},
+		)
+		self.assertEqual(len(Description.objects.all()), previous_count + 1)
 
 	def test_error_type_case(self):
 		previous_count = len(TrueFalse.objects.all())
@@ -73,4 +127,3 @@ class material_createViewTests(TestCase):
 			},
 		)
 		self.assertEqual(len(TrueFalse.objects.all()), previous_count)
-

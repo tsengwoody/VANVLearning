@@ -10,30 +10,24 @@ from .models import *
 def material_create(request, template_name='MaterialADocument/material_create.html'):
 	user = User.objects.get(username='root')
 	if request.method == 'POST':
-		if request.POST['type'] in ['Text', 'TrueFalse', 'Choice', 'Description', ]:
-			exec("form = {}Form(request.POST)".format(request.POST['type']))
-		else:
+		materialForm = MaterialForm()
+		try:
+			materialForm.fill(request.POST, True, user)
+		except TypeError as e:
 			return HttpResponseServerError(u'Server Error: 指定的類型不存在')
-		if not form.is_valid():
+		except ValueError as e:
 			status = 'error'
-			print form.errors
 			return render(request, template_name, locals())
-		material = form.save(commit=False)
-		material.origin_material = True
-		material.create_user = user
-		material.save()
 		status = 'success'
-		print status
 		return render(request, template_name, locals())
-	if request.method == 'POST':
-		tfForm = TrueFalseForm()
+	if request.method == 'GET':
 		return render(request, template_name, locals())
 
 def material_creategroup(request, template_name='MaterialADocument/material_creategroup.html'):
 	return render(request, template_name, locals())
 
 def get_form_info(request, template_name='MaterialADocument/get_form_info.html', *args, **kwargs):
-	if kwargs['type'] in ['TextForm', 'TrueFalseForm', 'ChoiceForm', 'DescriptionForm', ]:
+	if kwargs['type'] in ['TextForm', 'TrueFalseForm', 'ChoiceForm', 'DescriptionForm', OptionForm, ]:
 		exec("form = {}()".format(kwargs['type']))
 	else:
 		return HttpResponseServerError(u'Server Error: 指定的Form類型不存在')
