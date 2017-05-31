@@ -2,6 +2,7 @@
 from django import forms
 from django.forms import formset_factory
 from .models import *
+import json
 
 EMPTY_OPTION = (('', u'---------'),)
 TRUEFALSE_OPTION = ((True, u'是'), (False, u'否'),)
@@ -218,7 +219,7 @@ class MaterialForm(object):
 		else:
 			raise TypeError('type not valid')
 		if not form.is_valid():
-			raise ValueError('data not valid')
+			raise ValueError(json.dumps(form.errors))
 		material = form.save(commit=False)
 		material.origin_material = origin_material
 		material.create_user = user
@@ -228,6 +229,6 @@ class MaterialForm(object):
 			OptionFormSet = formset_factory(OptionForm)
 			formSet = OptionFormSet(data)
 			if not formSet.is_valid():
-				raise ValueError('data not valid')
+				raise ValueError(json.dumps(formSet.errors))
 			self.material = self.material + [form.save(choice=material, commit=True) for form in formSet]
-			return self.material
+		return self.material
