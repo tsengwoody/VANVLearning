@@ -36,7 +36,7 @@ class material_createViewTests(TestCase):
 				'subject': '4',
 				'topic': '4',
 				'privacy': '2',
-				'title': '二元一次方程式解',
+				'title': u'二元一次方程式解',
 				'content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
 			},
 		)
@@ -52,7 +52,7 @@ class material_createViewTests(TestCase):
 				'subject': '3',
 				'topic': '1',
 				'privacy': '2',
-				'title': '二元一次方程式解',
+				'title': u'二元一次方程式解',
 				'answer': 'True',
 			},
 		)
@@ -69,7 +69,7 @@ class material_createViewTests(TestCase):
 				'subject': '4',
 				'topic': '4',
 				'privacy': '2',
-				'title': '二元一次方程式解',
+				'title': u'二元一次方程式解',
 				'form-TOTAL_FORMS': '2',
 				'form-INITIAL_FORMS': '0',
 				'form-MAX_NUM_FORMS': '10',
@@ -83,7 +83,7 @@ class material_createViewTests(TestCase):
 		self.assertEqual(len(Option.objects.all()), previous_option_count + 2)
 
 	def test_correct_Description_case(self):
-		previous_count = len(TrueFalse.objects.all())
+		previous_count = len(Description.objects.all())
 		response = self.client.post(
 			reverse(
 			'MaterialADocument:material_create'),
@@ -92,7 +92,7 @@ class material_createViewTests(TestCase):
 				'subject': '3',
 				'topic': '2',
 				'privacy': '2',
-				'title': '二元一次方程式解',
+				'title': u'二元一次方程式解',
 				'answer': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
 			},
 		)
@@ -108,7 +108,7 @@ class material_createViewTests(TestCase):
 				'subject': '4',
 				'topic': '4',
 				'privacy': '2',
-				'title': '二元一次方程式解',
+				'title': u'二元一次方程式解',
 				'content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
 			},
 		)
@@ -126,7 +126,7 @@ class material_createViewTests(TestCase):
 				'subject': '3',
 				'topic': '1',
 				'privacy': '2',
-				'title': '二元一次方程式解',
+				'title': u'二元一次方程式解',
 				'answer': 'True',
 			},
 		)
@@ -143,7 +143,7 @@ class material_createViewTests(TestCase):
 				'subject': '2',
 				'topic': '1',
 				'privacy': '2',
-				'title': '二元一次方程式解',
+				'title': u'二元一次方程式解',
 				'answer': 'True',
 			},
 		)
@@ -188,3 +188,115 @@ class get_form_infoViewTests(TestCase):
 			HTTP_X_REQUESTED_WITH='XMLHttpRequest',
 		)
 		self.assertEqual(response.status_code, 500)
+
+class material_creategroupViewTests(TestCase):
+
+	@classmethod
+	def setUpClass(cls):
+		super(material_creategroupViewTests, cls).setUpClass()
+		root = User(username='root', email='edocumentservice@gmail.com', first_name = 'root firstname', last_name = 'root lastname', is_active=True, is_superuser=True, is_staff=True, phone='0917823099', birthday='2017-01-01')
+		root.set_password('root')
+		root.auth_email = True
+		root.auth_phone = True
+		root.save()
+		Subject.objects.create(name=u'國中數學(課綱)')
+		Subject.objects.create(name=u'國中數學(自訂)')
+		s = Subject.objects.create(name=u'高中數學(課綱)')
+		s2 = Subject.objects.create(name=u'高中數學(自訂)')
+		Subject.objects.create(name=u'線性代數')
+		Topic.objects.create(subject=s, name=u'實數')
+		Topic.objects.create(subject=s, name=u'絕對值')
+		Topic.objects.create(subject=s, name=u'指數')
+		Topic.objects.create(subject=s2, name=u'微積分')
+
+	def test_correct_2items_case(self):
+		previous_materialgroup_count = len(MaterialGroup.objects.all())
+		previous_choice_count = len(Choice.objects.all())
+		previous_option_count = len(Option.objects.all())
+		previous_description_count = len(Description.objects.all())
+		previous_materialgroup_count = len(MaterialGroup.objects.all())
+		previous_materialgroupdetail_count = len(MaterialGroupDetail.objects.all())
+		response = self.client.post(
+			reverse('MaterialADocument:material_creategroup'),
+			{
+				'material_count': '2',
+				'type': 'MaterialGroup',
+				'subject': '4',
+				'topic': '4',
+				'privacy': '2',
+				'title': u'二元一次方程式解群組題',
+				'content': u'群組素材內容',
+				'material-0-type': 'Choice',
+				'material-0-subject': '4',
+				'material-0-topic': '4',
+				'material-0-privacy': '2',
+				'material-0-title': u'二元一次方程式解',
+				'material-0-form-TOTAL_FORMS': '2',
+				'material-0-form-INITIAL_FORMS': '0',
+				'material-0-form-MAX_NUM_FORMS': '10',
+				'material-0-form-0-content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
+				'material-0-form-0-is_answer': 'True',
+				'material-0-form-1-content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>b</mi></mrow></mfrac></mrow></math>',
+				'material-0-form-1-is_answer': 'False',
+				'material-1-type': 'Description',
+				'material-1-subject': '4',
+				'material-1-topic': '4',
+				'material-1-privacy': '2',
+				'material-1-title': u'二元一次方程式解問答題',
+				'material-1-answer': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
+			},
+		)
+		self.assertEqual(len(MaterialGroup.objects.all()), previous_materialgroup_count + 1)
+		self.assertEqual(len(Choice.objects.all()), previous_choice_count + 1)
+		self.assertEqual(len(Option.objects.all()), previous_option_count + 2)
+		self.assertEqual(len(Description.objects.all()), previous_description_count + 1)
+		self.assertEqual(len(MaterialGroup.objects.all()), previous_materialgroup_count + 1)
+		self.assertEqual(len(MaterialGroupDetail.objects.all()), previous_materialgroupdetail_count + 2)
+		m = MaterialGroup.objects.first()
+		self.assertEqual(response.json()['status'], 'success')
+		self.assertRedirects(response, reverse('MaterialADocument:material_view', kwargs={'id': m.id, }, ))
+
+	def test_error_material_no_match_materialgroup_data_case(self):
+		previous_materialgroup_count = len(MaterialGroup.objects.all())
+		previous_choice_count = len(Choice.objects.all())
+		previous_option_count = len(Option.objects.all())
+		previous_description_count = len(Description.objects.all())
+		previous_materialgroup_count = len(MaterialGroup.objects.all())
+		previous_materialgroupdetail_count = len(MaterialGroupDetail.objects.all())
+		response = self.client.post(
+			reverse('MaterialADocument:material_creategroup'),
+			{
+				'material_count': '2',
+				'type': 'MaterialGroup',
+				'subject': '4',
+				'topic': '4',
+				'privacy': '2',
+				'title': u'二元一次方程式解群組題',
+				'content': u'群組素材內容',
+				'material-0-type': 'Choice',
+				'material-0-subject': '4',
+				'material-0-topic': '4',
+				'material-0-privacy': '1',
+				'material-0-title': u'二元一次方程式解',
+				'material-0-form-TOTAL_FORMS': '2',
+				'material-0-form-INITIAL_FORMS': '0',
+				'material-0-form-MAX_NUM_FORMS': '10',
+				'material-0-form-0-content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
+				'material-0-form-0-is_answer': 'True',
+				'material-0-form-1-content': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>b</mi></mrow></mfrac></mrow></math>',
+				'material-0-form-1-is_answer': 'False',
+				'material-1-type': 'Description',
+				'material-1-subject': '3',
+				'material-1-topic': '3',
+				'material-1-privacy': '2',
+				'material-1-title': u'二元一次方程式解問答題',
+				'material-1-answer': u'<math><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo form="prefix">−</mo><mi>b</mi><mo>&PlusMinus;</mo><msqrt><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mo>&InvisibleTimes;</mo><mi>a</mi><mo>&InvisibleTimes;</mo><mi>c</mi></msqrt></mrow><mrow><mn>2</mn><mo>&InvisibleTimes;</mo><mi>a</mi></mrow></mfrac></mrow></math>',
+			},
+		)
+		#待處理
+		self.assertEqual(len(MaterialGroup.objects.all()), previous_materialgroup_count + 1)
+		self.assertEqual(len(Choice.objects.all()), previous_choice_count + 1)
+		self.assertEqual(len(Option.objects.all()), previous_option_count + 2)
+		self.assertEqual(len(Description.objects.all()), previous_description_count + 1)
+		self.assertEqual(len(MaterialGroup.objects.all()), previous_materialgroup_count + 1)
+		self.assertEqual(len(MaterialGroupDetail.objects.all()), previous_materialgroupdetail_count)

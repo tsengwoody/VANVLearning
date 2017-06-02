@@ -43,7 +43,7 @@ class MaterialBaseForm(forms.ModelForm):
 			if topic_id not in SubjectToTopic[subject_id]:
 				raise forms.ValidationError(
 					"subject to topic not map",
-					code="invalid",
+					code="no_match",
 				)
 
 	def save(self, *args, **kwargs):
@@ -68,12 +68,41 @@ class SelectForm(forms.Form):
 		label=u'類型',
 	)
 
+class MaterialGroupForm(MaterialBaseForm):
+	class Meta:
+		model = MaterialGroup
+		fields = ['title', 'privacy', 'content']
+		widgets = {
+			'title': forms.TextInput(
+				attrs={},
+			),
+			'privacy': forms.RadioSelect(
+				attrs={},
+				choices = PRIVACY_OPTION,
+			),
+			'content': forms.Textarea(
+				attrs={},
+			),
+		}
+		labels = {
+			'title': u'標題',
+			'privacy': u'權限',
+			'content': u'內容',
+		}
+		help_texts = {
+		}
+
+	def __init__(self, *args, **kwargs):
+		super(MaterialGroupForm, self).__init__(*args, **kwargs)
+		new_order = ['subject', 'topic', 'privacy', 'title', 'content',]
+		self.fields = type(self.fields)((k, self.fields[k]) for k in new_order)
+
 class TextForm(MaterialBaseForm):
 	class Meta:
 		model = Text
 		fields = ['title', 'privacy', 'content']
 		widgets = {
-			'title': forms.Textarea(
+			'title': forms.TextInput(
 				attrs={},
 			),
 			'privacy': forms.RadioSelect(
@@ -214,7 +243,7 @@ class MaterialForm(object):
 		self.material = []
 
 	def fill(self, data, origin_material, user,):
-		if data['type'] in ['Text', 'TrueFalse', 'Choice', 'Description', ]:
+		if data['type'] in ['Text', 'TrueFalse', 'Choice', 'Description', 'MaterialGroup', ]:
 			exec("form = {}Form(data)".format(data['type']))
 		else:
 			raise TypeError('type not valid')

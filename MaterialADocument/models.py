@@ -7,7 +7,9 @@ from django.db import models
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from users.models import User
 
 class Subject(models.Model):
@@ -66,7 +68,10 @@ class Description(Material):
 class MaterialGroup(Material):
 	title = models.CharField(max_length=100)
 	content = models.TextField()
-	from_material = models.ForeignKey('MaterialGroup')
+	from_material = models.ForeignKey('MaterialGroup', blank=True, null=True)
+
+	def __unicode__(self):
+		return str(self.__class__) +'-' +str(self.id)
 
 class MaterialGroupDetail(models.Model):
 	material_group = models.ForeignKey(MaterialGroup)
@@ -77,6 +82,23 @@ class MaterialGroupDetail(models.Model):
 
 	def __unicode__(self):
 		return str(self.material_group.id) +'-' +str(self.seq)
+
+	def clean(self):
+		ValidationError_dict = {}
+		if self.material_group.topic != self.material.topic:
+			ValidationError_dict.update({
+				'topic': ValidationError(_('material not match materialgroup privacy'), code='not_match'),
+			})
+		if self.material_group.privacy != self.material.privacy:
+			ValidationError_dict.update({
+				'topic': ValidationError(_('material not match materialgroup topic'), code='not_match'),
+			})
+		if ValidationError_dict != {}:
+			raise ValidationError(ValidationError_dict)
+
+	def save(self, *args, **kwargs):
+		self.full_clean()
+		super(MaterialGroupDetail, self).save(*args, **kwargs)
 
 class ContentPiece(models.Model):
 	content = models.TextField()
