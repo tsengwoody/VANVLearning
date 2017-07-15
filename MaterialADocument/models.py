@@ -12,6 +12,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from users.models import User
 
+import json
+
 class Subject(models.Model):
 	name = models.CharField(max_length=20)
 
@@ -23,7 +25,7 @@ class Topic(models.Model):
 	name = models.CharField(max_length=20)
 
 	def __unicode__(self):
-		return self.name
+		return self.subject.name +':' +self.name
 
 class Material(models.Model):
 	topic = models.ForeignKey(Topic)
@@ -40,6 +42,34 @@ class Material(models.Model):
 
 	def __unicode__(self):
 		return self.topic.name +str(self.id)
+
+	def serialized(self):
+		serialize = {}
+		for field in self._meta.fields:
+			value = getattr(self, field.name)
+			if isinstance(value, models.Model):
+				value = {'name': unicode(value), 'href': ''}
+			else:
+				try:
+					json.dumps(value)
+				except:
+					value = unicode(value)
+			serialize.update({field.name: value})
+		return serialize
+
+	def serialized_abstract(self):
+		serialize = {}
+		for field in ['topic', 'title', 'create_time', 'create_user']:
+			value = getattr(self, field)
+			if isinstance(value, models.Model):
+				value = {'name': unicode(value), 'href': ''}
+			else:
+				try:
+					json.dumps(value)
+				except:
+					value = unicode(value)
+			serialize.update({field: value})
+		return serialize
 
 class Text(Material):
 	title = models.CharField(max_length=100)
@@ -70,11 +100,17 @@ class MaterialGroup(Material):
 	content = models.TextField()
 	from_material = models.ForeignKey('MaterialGroup', blank=True, null=True)
 
+	def delete(self, *args, **kwargs):
+		for i in self.materialgroupdetail_set.all():
+			i.delete()
+		super(MaterialGroup, self).delete(*args, **kwargs)
+
 	def __unicode__(self):
 		return str(self.__class__) +'-' +str(self.id)
 
 class MaterialGroupDetail(models.Model):
-	material_group = models.ForeignKey(MaterialGroup)
+	material_group = models.ForeignKey(MaterialGroup, on_delete=models.SET_NULL, blank=True, null=True)
+#	material_group = models.ForeignKey(MaterialGroup, on_delete=models.CASCADE)
 	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
 	object_id = models.PositiveIntegerField()
 	material = GenericForeignKey('content_type', 'object_id')
@@ -95,6 +131,10 @@ class MaterialGroupDetail(models.Model):
 			})
 		if ValidationError_dict != {}:
 			raise ValidationError(ValidationError_dict)
+
+	def delete(self, *args, **kwargs):
+		self.material.delete()
+		super(MaterialGroupDetail, self).delete(*args, **kwargs)
 
 	def save(self, *args, **kwargs):
 		self.full_clean()

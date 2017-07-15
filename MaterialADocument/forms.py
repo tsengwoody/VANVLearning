@@ -258,6 +258,7 @@ class MaterialForm(object):
 			OptionFormSet = formset_factory(OptionForm)
 			formSet = OptionFormSet(data)
 			if not formSet.is_valid():
+				material.delete()
 				raise ValueError(json.dumps(formSet.errors))
 			self.material = self.material + [form.save(choice=material, commit=True) for form in formSet]
 		return self.material
