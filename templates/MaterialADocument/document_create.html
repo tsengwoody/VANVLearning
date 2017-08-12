@@ -1,0 +1,20 @@
+﻿{% extends "base_nav.html" %}
+{% load staticfiles %}
+{% block title %}
+	製作文件
+{% endblock %}
+
+{% block style%}
+	<script language="javascript" src="{% static 'js/tinymce/js/tinymce/tinymce.min.js' %}"></script>
+	<script src="http://www.wiris.net/demo/editor/editor"></script>
+	<script src={% static "js/material_create.js"%}></script> 
+	<script src={% static "js/bundle/editor.js"%}></script> 
+{% endblock %}
+
+{% block content %}
+		<form action="" method="post">
+{% csrf_token %}
+		{{ documentForm }}
+	<input type="submit" value="send" id="send_id">
+		</form>
+{% endblock %}

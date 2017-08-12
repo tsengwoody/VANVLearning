@@ -37,10 +37,10 @@ class MaterialBaseForm(forms.ModelForm):
 		subject_id = cleaned_data.get("subject")
 		topic_id = cleaned_data.get("topic")
 		if subject_id and topic_id:
-			SubjectToTopic = {}
-			for subject in Subject.objects.all():
-				SubjectToTopic[subject.id] = [topic.id for topic in subject.topic_set.all()]
-			if topic_id not in SubjectToTopic[subject_id]:
+			SubjectToTopic = []
+			subject = Subject.objects.get(id=subject_id)
+			SubjectToTopic = [topic.id for topic in subject.topic_set.all()]
+			if topic_id not in SubjectToTopic:
 				raise forms.ValidationError(
 					"subject to topic not map",
 					code="no_match",
@@ -55,7 +55,7 @@ class MaterialBaseForm(forms.ModelForm):
 			instance.save()
 		return instance
 
-class SelectForm(forms.Form):
+'''class SelectForm(forms.Form):
 	type = forms.IntegerField(
 		widget=forms.RadioSelect(
 			choices = (
@@ -66,7 +66,7 @@ class SelectForm(forms.Form):
 			)
 		),
 		label=u'類型',
-	)
+	)'''
 
 class MaterialGroupForm(MaterialBaseForm):
 	class Meta:
@@ -242,7 +242,7 @@ class MaterialForm(object):
 	def __init__(self):
 		self.material = []
 
-	def fill(self, data, origin_material, user,):
+	def create(self, data, origin_material, user,):
 		if data['type'] in ['Text', 'TrueFalse', 'Choice', 'Description', 'MaterialGroup', ]:
 			exec("form = {}Form(data)".format(data['type']))
 		else:
@@ -262,3 +262,126 @@ class MaterialForm(object):
 				raise ValueError(json.dumps(formSet.errors))
 			self.material = self.material + [form.save(choice=material, commit=True) for form in formSet]
 		return self.material
+
+	def update(self, data, user,):
+		if data['type'] in ['Text', 'TrueFalse', 'Choice', 'Description', 'MaterialGroup', ]:
+			exec(
+				"instance={}.objects.get(id=data['id'])".format(data['type'])
+			)
+			exec(
+				"form = {}Form(data, instance=instance)".format(data['type'])
+			)
+		else:
+			raise TypeError('type not valid')
+		if not form.is_valid():
+			raise ValueError(json.dumps(form.errors))
+		if instance.topic.subject.id != int(data['subject']):
+			raise ValueError('subject can not to change')
+		material = form.save(commit=False)
+		material.create_user = user
+		material.save()
+		self.material.append(material)
+		if data['type'] == 'Choice':
+			for i in instance.option_set.all():
+				i.delete()
+			OptionFormSet = formset_factory(OptionForm)
+			formSet = OptionFormSet(data)
+			if not formSet.is_valid():
+				material.delete()
+				raise ValueError(json.dumps(formSet.errors))
+			self.material = self.material + [form.save(choice=material, commit=True) for form in formSet]
+		return self.material
+
+#Document#
+
+class DocumentForm(forms.ModelForm):
+	topic = forms.RegexField(
+		regex = r'.*',
+#		widget=forms.CheckboxSelectMultiple(),
+		label = u'主題',
+	)
+	'''topic = forms.IntegerField(
+#		widget=forms.CheckboxSelectMultiple(
+#			choices = PRIVACY_OPTION
+#		),
+		label = u'主題',
+	)'''
+
+	class Meta:
+		model = Document
+		fields = ['type', 'title', 'privacy', 'abstract', ]
+		widgets = {
+			'type': forms.RadioSelect(
+				attrs={},
+				choices = (
+					(0, u'課文'),
+					(1, u'試題'),
+				),
+			),
+			'title': forms.TextInput(
+				attrs={},
+			),
+			'privacy': forms.RadioSelect(
+				attrs={},
+				choices = PRIVACY_OPTION,
+			),
+			'abstract': forms.Textarea(
+				attrs={},
+			),
+		}
+		labels = {
+			'type': u'類型',
+			'title': u'標題',
+			'privacy': u'權限',
+			'abstract': u'摘要',
+		}
+		help_texts = {
+		}
+
+	def __init__(self, *args, **kwargs):
+		kwargs.setdefault('label_suffix', '')
+		super(DocumentForm, self).__init__(*args, **kwargs)
+		choices = [('', u'---------')]
+		choices = list(EMPTY_OPTION) + [(subject.id, subject.name) for subject in Subject.objects.all()]
+		self.fields['subject'] = forms.IntegerField(
+			widget=forms.Select(
+				choices=choices
+			),
+			label=u'科目',
+		)
+
+	def clean(self):
+		cleaned_data = super(DocumentForm, self).clean()
+		try:
+			cleaned_data['topic'] = [ int(i) for i in self.data['topic'] ]
+		except:
+			raise forms.ValidationError(
+				"topic_id not integer",
+				code="topic_id not integer",
+			)
+		self.cleaned_data = cleaned_data
+		subject_id = self.cleaned_data.get("subject")
+		topic_ids = self.cleaned_data['topic']
+
+		if subject_id and topic_ids:
+			SubjectToTopic = []
+			subject = Subject.objects.get(id=subject_id)
+			SubjectToTopic = [topic.id for topic in subject.topic_set.all()]
+
+			for topic_id in topic_ids:
+				if topic_id not in SubjectToTopic:
+					raise forms.ValidationError(
+						"subject to topic not map",
+						code="no_match",
+					)
+
+	def save(self, *args, **kwargs):
+		user = kwargs.pop('user')
+		kwargs['commit'] = False
+		instance = super(DocumentForm, self).save(*args, **kwargs)
+		instance.create_user = user
+		instance.save()
+		for topic_id in self.cleaned_data['topic']:
+			topic = Topic.objects.get(id=topic_id)
+			instance.topic.add(topic)
+		return instance
